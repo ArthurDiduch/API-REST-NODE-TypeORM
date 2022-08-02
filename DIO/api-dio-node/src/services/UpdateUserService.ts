@@ -1,7 +1,27 @@
-import { getRepository } from 'typeorm';
+import { getRepository } from 'typeorm'
+import { Usuario } from '../entities/Usuario'
 
-class UpdateUserService{
-
+interface IUser{
+    id: string;
+    nome: string;
+    email?: string;
 }
 
-export { UpdateUserService}
+class UpdateUserService{
+    async execute({ id, nome, email}: IUser){
+        const user = await getRepository(Usuario)
+            .createQueryBuilder()
+            .update()
+            .set({
+                nome: nome,
+                email: email
+            })
+            .where('id = :id', { id })
+            .execute()
+        
+        console.log(user)
+        return user.raw
+    }
+}
+
+export { UpdateUserService }

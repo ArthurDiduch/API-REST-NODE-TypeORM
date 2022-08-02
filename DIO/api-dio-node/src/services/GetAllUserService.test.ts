@@ -1,38 +1,26 @@
-import createConnection from "../database";
 import { getConnection } from 'typeorm';
+import createConnection from '../database';
 import { GetAllUserService } from './GetAllUserService';
-import { CreateUserService } from './CreateUserService';
-import { v4 as uuid } from 'uuid';
+import { FakeData } from '../utils/mocks/fakeData/fakeData';
 
-describe('GetAllUserService', () =>{
-    beforeAll(async () =>{
-        const connection = createConnection();
-        await (await connection).runMigrations;
+describe('GetAllUserService', () => {
+    beforeAll(async () => {
+        const connection = await createConnection();
+        await connection.runMigrations
     })
 
-    afterAll(async () =>{
+    afterAll(async () => {
         const connection = getConnection();
-        await connection.query('DELETE FROM usuarios');
-        await connection.close();
+        await connection.query('DELETE FROM usuarios')
+        await connection.close()
     })
 
-    
+    const fakeData = new FakeData();
 
-    it('Deve retornar todos os usuários cadastrados', async()=>{
-        const createUserService = new CreateUserService();
+    it('Deve retornar todos os usuários cadastrados', async()=> {
 
-        await createUserService.execute({
-            id: uuid(),
-            nome: 'Algum usuario',
-            email: 'algumusuario@gmail.com',
-        })
+        await fakeData.execute()
 
-        await createUserService.execute({
-            id: uuid(),
-            nome: 'Outro usuario',
-            email: '',
-        })
-        
         const expectedResponse = [
             {
                 nome: 'Algum usuario',
@@ -40,7 +28,7 @@ describe('GetAllUserService', () =>{
             },
             {
                 nome: 'Outro usuario',
-                email: '',
+                email: ''
             }
         ]
 
@@ -48,6 +36,6 @@ describe('GetAllUserService', () =>{
 
         const result = await getAllUserService.execute();
 
-        expect(result).toMatchObject(expectedResponse);
+        expect(result).toMatchObject(expectedResponse)
     })
 })
